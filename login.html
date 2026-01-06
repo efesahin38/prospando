@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 PROSPANDO Giriş</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #16213e 100%); 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            position: relative;
+        }
+        body::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; left: 0; right: 0; bottom: 0; 
+            background: radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 50%), 
+                        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%), 
+                        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 40%); 
+            z-index: -1; 
+        }
+        .login-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        p.welcome {
+            color: #94a3b8;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            background: rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 10px;
+            padding: 14px;
+            color: white;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #a78bfa;
+            background: rgba(51, 65, 85, 0.9);
+        }
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #7c3aed, #ec4899);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+        }
+        .message {
+            margin-top: 20px;
+            color: #f87171;
+            font-weight: 600;
+        }
+        .logout-message {
+            color: #4ade80;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        @media (max-width: 480px) {
+            .login-card { padding: 30px; }
+            h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>🎯 PROSPANDO</h1>
+        
+
+        <div id="loginForm">
+            <div class="form-group">
+                <label>Kullanıcı Adı</label>
+                <input type="text" id="username" placeholder="efe" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>Parola</label>
+                <input type="password" id="password" placeholder="•••••" autocomplete="current-password">
+            </div>
+            <button onclick="login()">Giriş Yap</button>
+            <div class="message" id="errorMsg"></div>
+        </div>
+
+        <div id="logoutMsg" style="display: none;">
+            <p class="logout-message">Çıkış yapıldı.<br>Görüşürüz!</p>
+            <button onclick="showLogin()">Tekrar Giriş Yap</button>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById('username').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+
+            if (username === 'efe' && password === 'admin') {
+                // Giriş başarılı → admin dashboard'a yönlendir
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('errorMsg').textContent = 'Kullanıcı adı veya parola yanlış!';
+            }
+        }
+
+        // URL'de ?logout=true varsa çıkış mesajını göster
+        if (window.location.search.includes('logout=true')) {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('logoutMsg').style.display = 'block';
+            // Tarayıcı geçmişinden parametreyi temizle
+            history.replaceState({}, '', 'login.html');
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('logoutMsg').style.display = 'none';
+            document.getElementById('errorMsg').textContent = '';
+        }
+
+        // Enter tuşu ile giriş
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
