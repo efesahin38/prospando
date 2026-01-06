@@ -1,11 +1,14 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from datetime import datetime, timedelta
 import calendar
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from io import BytesIO
 
 load_dotenv()
 
@@ -45,6 +48,141 @@ def calculate_hours(start_time, end_time):
 def get_month_days(year, month):
     return calendar.monthrange(year, month)[1]
 
+# ==================== EXCEL RAPOR ====================
+@app.route('/api/export-monthly-report/<int:emp_id>', methods=['GET'])
+def export_monthly_report(emp_id):
+    try:
+        year = request.args.get('year', datetime.now().year, type=int)
+        month = request.args.get('month', datetime.now().month, type=int)
+        
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Çalışan adını al
+        cur.execute("SELECT name FROM employees WHERE id = %s", (emp_id,))
+        emp_row = cur.fetchone()
+        if not emp_row:
+            cur.close()
+            conn.close()
+            return jsonify({'success': False, 'error': 'Çalışan bulunamadı'}), 404
+        
+        emp_name = emp_row['name']
+        
+        # Ayın ilk ve son günü
+        last_day = get_month_days(year, month)
+        first_day = f"{year}-{month:02d}-01"
+        last_day_str = f"{year}-{month:02d}-{last_day}"
+        
+        # Yoklama verilerini al
+        cur.execute("""
+            SELECT date, start_time, end_time, location
+            FROM attendance
+            WHERE employee_id = %s AND date BETWEEN %s AND %s
+            ORDER BY date ASC
+        """, (emp_id, first_day, last_day_str))
+        
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        
+        # Excel çalışma kitabı oluştur
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Aylık Rapor"
+        
+        # Başlık stileri
+        header_fill = PatternFill(start_color="7C3AED", end_color="7C3AED", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        center_align = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        
+        # Başlık bilgileri
+        ws['A1'] = "AYLИК ÇALIŞMA RAPORU"
+        ws['A1'].font = Font(bold=True, size=14, color="7C3AED")
+        ws.merge_cells('A1:E1')
+        
+        months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 
+                  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
+        
+        ws['A2'] = f"Çalışan: {emp_name}"
+        ws['A3'] = f"Dönem: {months[month-1]} {year}"
+        
+        # Tablo başlıkları
+        headers = ['Tarih', 'Giriş Saati', 'Çıkış Saati', 'Konum', 'Çalışma Saati']
+        for col, header in enumerate(headers, 1):
+            cell = ws.cell(row=5, column=col)
+            cell.value = header
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = center_align
+            cell.border = border
+        
+        # Kolon genişlikleri
+        ws.column_dimensions['A'].width = 15
+        ws.column_dimensions['B'].width = 15
+        ws.column_dimensions['C'].width = 15
+        ws.column_dimensions['D'].width = 20
+        ws.column_dimensions['E'].width = 15
+        
+        # Veriler
+        total_hours = 0
+        row_num = 6
+        
+        for row in rows:
+            hours = calculate_hours(row['start_time'], row['end_time']) if row['end_time'] else 0
+            total_hours += hours
+            
+            ws.cell(row=row_num, column=1).value = row['date']
+            ws.cell(row=row_num, column=2).value = str(row['start_time'])[:5] if row['start_time'] else '—'
+            ws.cell(row=row_num, column=3).value = str(row['end_time'])[:5] if row['end_time'] else '—'
+            ws.cell(row=row_num, column=4).value = row['location'] or 'Bilinmiyor'
+            ws.cell(row=row_num, column=5).value = round(hours, 2) if hours else 0
+            
+            # Stil uygula
+            for col in range(1, 6):
+                cell = ws.cell(row=row_num, column=col)
+                cell.border = border
+                if col == 5:
+                    cell.alignment = Alignment(horizontal="center")
+            
+            row_num += 1
+        
+        # Toplam satırı
+        ws.cell(row=row_num, column=4).value = "TOPLAM SAATİ:"
+        ws.cell(row=row_num, column=4).font = Font(bold=True)
+        ws.cell(row=row_num, column=4).alignment = Alignment(horizontal="right")
+        
+        ws.cell(row=row_num, column=5).value = round(total_hours, 2)
+        ws.cell(row=row_num, column=5).font = Font(bold=True, color="FFFFFF")
+        ws.cell(row=row_num, column=5).fill = PatternFill(start_color="4ADE80", end_color="4ADE80", fill_type="solid")
+        
+        for col in range(4, 6):
+            ws.cell(row=row_num, column=col).border = border
+        
+        # Excel dosyasını BytesIO'ya yaz
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Dosya adı (Türkçe ay ismi ile)
+        filename = f"{emp_name}_{months[month-1]}_{year}_Rapor.xlsx"
+        
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"❌ Excel export error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # ==================== EMPLOYEES ====================
 @app.route('/api/employees', methods=['GET'])
 def get_employees():
@@ -56,12 +194,10 @@ def get_employees():
         for emp in cur.fetchall():
             emp_id = emp['id']
             name = emp['name']
-            # Email eşleştirme (case insensitive)
             cur.execute("SELECT email FROM users WHERE LOWER(name) = LOWER(%s) LIMIT 1", (name,))
             email_row = cur.fetchone()
             email = email_row['email'] if email_row else ''
 
-            # Toplam çalışma saati
             cur.execute("""
                 SELECT start_time, end_time FROM attendance
                 WHERE employee_id = %s AND end_time IS NOT NULL
@@ -93,11 +229,10 @@ def add_employee():
         if not name:
             return jsonify({'success': False, 'error': 'Ad Soyad boş olamaz'}), 400
 
-        # Email artık frontend'den gelmiyor, ama eski çağrılar için güvenli tutalım
         email = data.get('email')
         if email:
             email = email.strip()
-            if not email:  # boş string geldiyse None yap
+            if not email:
                 email = None
         else:
             email = None
@@ -105,22 +240,18 @@ def add_employee():
         conn = get_conn()
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        # 1. Aynı isimde çalışan var mı? (case insensitive)
         cur.execute("SELECT id FROM employees WHERE LOWER(name) = LOWER(%s)", (name,))
         if cur.fetchone():
             cur.close()
             conn.close()
             return jsonify({'success': False, 'error': 'Bu isimde bir çalışan zaten var'}), 400
 
-        # 2. Yeni ID hesapla (max + 1)
         cur.execute("SELECT MAX(id) AS max_id FROM employees")
         row = cur.fetchone()
         new_id = (row['max_id'] or 0) + 1
 
-        # 3. employees tablosuna ekle (sadece id ve name)
         cur.execute("INSERT INTO employees (id, name) VALUES (%s, %s)", (new_id, name))
 
-        # 4. Eğer email varsa users tablosuna ekle/güncelle (artık genellikle çalışmayacak ama zarar da vermez)
         if email:
             cur.execute("""
                 INSERT INTO users (name, email) 
@@ -132,13 +263,12 @@ def add_employee():
         cur.close()
         conn.close()
 
-        # Frontend'e dönen cevapta email None ise boş string gönderelim (görüntüleme için daha temiz)
         return jsonify({
             'success': True,
             'data': {
                 'id': new_id,
                 'name': name,
-                'email': email or '',  # None yerine boş string
+                'email': email or '',
                 'total_hours': 0
             }
         }), 201
@@ -275,11 +405,9 @@ def get_dashboard_stats():
         conn = get_conn()
         cur = conn.cursor(cursor_factory=RealDictCursor)
 
-        # Toplam çalışan
         cur.execute("SELECT COUNT(*) AS count FROM employees")
         total_employees = cur.fetchone()['count']
 
-        # Bugünkü yoklama (distinct employee)
         today = datetime.now().strftime("%Y-%m-%d")
         cur.execute("""
             SELECT COUNT(DISTINCT employee_id) AS count
@@ -287,7 +415,6 @@ def get_dashboard_stats():
         """, (today,))
         checked_in_today = cur.fetchone()['count']
 
-        # Bu ay toplam saat (tüm çalışanlar)
         now = datetime.now()
         first_day = now.strftime("%Y-%m-01")
         cur.execute("""
@@ -324,10 +451,7 @@ def health():
     return jsonify({'status': 'healthy', 'database': 'supabase'}), 200
 
 if __name__ == '__main__':
-    # Localhost'ta test için (development)
     port = int(os.getenv('PORT', 5001))
     debug = os.getenv('DEBUG', 'True') == 'True'
     print("🚀 PROSPANDO Admin Backend başlatılıyor...")
     app.run(host='0.0.0.0', port=port, debug=debug)
-
-# Render/Production için (gunicorn kullanırken bu çalışır)
