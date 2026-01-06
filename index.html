@@ -14,13 +14,16 @@
         .navbar button { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px 28px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s; box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
         .navbar button:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(239, 68, 68, 0.6); }
         .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stats-section { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; flex: 1; }
         .stat-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 20px; padding: 30px; backdrop-filter: blur(10px); text-align: center; }
         .stat-card.blue { border-color: rgba(59, 130, 246, 0.3); background: rgba(30, 58, 138, 0.2); }
         .stat-card.green { border-color: rgba(34, 197, 94, 0.3); background: rgba(20, 83, 45, 0.2); }
         .stat-card.purple { border-color: rgba(168, 85, 247, 0.3); background: rgba(88, 28, 135, 0.2); }
         .stat-label { color: #94a3b8; font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 10px; }
         .stat-value { font-size: 36px; font-weight: 900; color: white; }
+        .report-btn { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 20px 30px; border-radius: 15px; cursor: pointer; font-weight: 600; font-size: 16px; transition: all 0.3s; box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); white-space: nowrap; }
+        .report-btn:hover { transform: translateY(-3px); box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
         .main-grid { display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
         .panel { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 20px; backdrop-filter: blur(10px); overflow: hidden; }
         .panel-header { background: linear-gradient(135deg, #7c3aed, #ec4899); padding: 20px; color: white; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
@@ -35,7 +38,9 @@
         .employee-header { background: rgba(124, 58, 237, 0.2); border: 1px solid rgba(124, 58, 237, 0.5); border-radius: 20px; padding: 30px; text-align: center; }
         .employee-avatar { width: 80px; height: 80px; margin: 0 auto 20px; background: linear-gradient(135deg, #a78bfa, #f472b6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; }
         .employee-header h2 { color: white; font-size: 24px; margin-bottom: 5px; }
-        .employee-header p { color: #94a3b8; }
+        .employee-header p { color: #94a3b8; margin-bottom: 15px; }
+        .btn-delete { background: transparent; color: #f87171; border: 1px solid #f87171; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s; }
+        .btn-delete:hover { background: #f87171; color: white; }
         .monthly-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .stat-box { background: rgba(51, 65, 85, 0.6); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 20px; text-align: center; }
         .stat-box-label { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
@@ -66,11 +71,11 @@
         .btn-cancel:hover { background: rgba(100, 116, 139, 0.8); }
         .btn-add { background: linear-gradient(135deg, #7c3aed, #ec4899); color: white; }
         .btn-add:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(124, 58, 237, 0.6); }
-        .btn-delete { background: transparent; color: #f87171; border: 1px solid #f87171; padding: 8px 12px; font-size: 12px; }
-        .btn-delete:hover { background: #f87171; color: white; }
         .no-employee { text-align: center; padding: 60px 20px; color: #64748b; }
         .loading { text-align: center; padding: 20px; color: #94a3b8; }
-        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } .panel-content { max-height: 400px; } }
+        .search-input { background: rgba(255,255,255,0.1); border: none; padding: 8px 15px; border-radius: 8px; color: white; width: 150px; }
+        .add-btn { background: white; color: #7c3aed; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr; } .panel-content { max-height: 400px; } .stats-section { flex-direction: column; } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: rgba(51, 65, 85, 0.3); border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.5); border-radius: 10px; }
@@ -78,50 +83,44 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
     <div class="navbar">
         <div class="navbar-content">
-            <div>
-                <h1>🎯 PROSPANDO Admin</h1>
-            </div>
+            <h1>🎯 PROSPANDO Admin</h1>
             <button onclick="logout()">Çıkış Yap</button>
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container">
-        <!-- Stats -->
-        <div class="stats-grid">
-            <div class="stat-card blue">
-                <div class="stat-label">TOPLAM ÇALIŞAN</div>
-                <div class="stat-value" id="totalEmployees">0</div>
+        <div class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">TOPLAM ÇALIŞAN</div>
+                    <div class="stat-value" id="totalEmployees">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">BUGÜNKİ YOKLAMA</div>
+                    <div class="stat-value" id="checkedInToday" style="cursor: pointer;">0</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">AYLIK TOPLAM SAAT</div>
+                    <div class="stat-value" id="monthlyHours">0</div>
+                </div>
             </div>
-            <div class="stat-card green">
-                <div class="stat-label">BUGÜNKİ YOKLAMA</div>
-                <div class="stat-value" id="checkedInToday" style="cursor: pointer;" onclick="showTodayAttendance()">0</div>
-            </div>
-            <div class="stat-card purple">
-                <div class="stat-label">AYLIK TOPLAM SAAT</div>
-                <div class="stat-value" id="monthlyHours">0</div>
-            </div>
+            <button class="report-btn" onclick="downloadAllEmployeesReport()">📥 Rapor İndir</button>
         </div>
 
-        <!-- Main Grid -->
         <div class="main-grid">
-            <!-- Employees List -->
             <div class="panel">
                 <div class="panel-header">
                     Çalışanlar
-                    <input type="text" id="searchEmp" placeholder="Ara..." style="background: rgba(255,255,255,0.1); border: none; padding: 8px 15px; border-radius: 8px; color: white; margin-left: auto; width: 150px;">
-                    <button onclick="openAddModal()" style="background: white; color: #7c3aed; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-weight: bold;">+</button>
+                    <input type="text" id="searchEmp" class="search-input" placeholder="Ara...">
+                    <button class="add-btn" onclick="openAddModal()">+</button>
                 </div>
                 <div class="panel-content" id="employeesList"></div>
             </div>
 
-            <!-- Details Panel -->
             <div class="details-panel">
                 <div id="detailsContent" style="display: none;">
-                    <!-- Employee Header -->
                     <div class="panel employee-header">
                         <div class="employee-avatar">👤</div>
                         <h2 id="detailName"></h2>
@@ -129,9 +128,8 @@
                         <button class="btn-delete" onclick="deleteEmployee(selectedEmpId)">Sil</button>
                     </div>
 
-                    <!-- Monthly Stats -->
                     <div class="panel">
-                        <div class="panel-header"> Aylık İstatistik </div>
+                        <div class="panel-header">Aylık İstatistik</div>
                         <div class="panel-content">
                             <div class="month-selector">
                                 <button onclick="prevMonth()">←</button>
@@ -152,9 +150,8 @@
                         </div>
                     </div>
 
-                    <!-- Attendance History -->
                     <div class="panel">
-                        <div class="panel-header"> Çalışma Geçmişi </div>
+                        <div class="panel-header">Çalışma Geçmişi</div>
                         <div class="panel-content">
                             <div class="attendance-list" id="attendanceList"></div>
                         </div>
@@ -170,23 +167,20 @@
         </div>
     </div>
 
-    <!-- Add Employee Modal -->
-    <!-- Add Employee Modal -->
-<div class="modal" id="addModal">
-    <div class="modal-content">
-        <h3>Yeni Çalışan Ekle</h3>
-        <div class="form-group">
-            <label>Ad Soyad *</label>
-            <input type="text" id="newEmpName" placeholder="Ad Soyadını giriniz..." autofocus>
-        </div>
-        <div class="modal-buttons">
-            <button class="btn btn-cancel" onclick="closeAddModal()">İptal</button>
-            <button class="btn btn-add" onclick="addEmployee()">Ekle</button>
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3>Yeni Çalışan Ekle</h3>
+            <div class="form-group">
+                <label>Ad Soyad *</label>
+                <input type="text" id="newEmpName" placeholder="Ad Soyadını giriniz..." autofocus>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-cancel" onclick="closeAddModal()">İptal</button>
+                <button class="btn btn-add" onclick="addEmployee()">Ekle</button>
+            </div>
         </div>
     </div>
-</div>
 
-    <!-- Today Attendance Modal -->
     <div class="modal" id="todayModal">
         <div class="modal-content">
             <h3>Bugünkü Yoklama</h3>
@@ -197,101 +191,70 @@
         </div>
     </div>
 
-   <script>
-    const API_BASE = 'https://prospando.onrender.com';
-    let selectedEmpId = null;
-    let currentMonth = 0;  // Ocak 2026 başlangıç
-    let currentYear = 2026;
+    <script>
+        const API_BASE = 'https://prospando.onrender.com';
+        let selectedEmpId = null;
+        let currentMonth = 0;
+        let currentYear = 2026;
 
-    async function init() {
-        await loadEmployees();
-        await loadStats();
-        updateMonthDisplay();
+        async function init() {
+            await loadEmployees();
+            await loadStats();
+            updateMonthDisplay();
 
-        // Arama özelliği
-        document.getElementById('searchEmp').addEventListener('keyup', (e) => {
-            const term = e.target.value.toLowerCase();
-            document.querySelectorAll('.employee-item').forEach(item => {
-                const name = item.querySelector('.employee-name').textContent.toLowerCase();
-                item.style.display = name.includes(term) ? 'block' : 'none';
+            document.getElementById('searchEmp').addEventListener('keyup', (e) => {
+                const term = e.target.value.toLowerCase();
+                document.querySelectorAll('.employee-item').forEach(item => {
+                    const name = item.querySelector('.employee-name').textContent.toLowerCase();
+                    item.style.display = name.includes(term) ? 'block' : 'none';
+                });
             });
-        });
-    }
 
-    async function loadEmployees() {
-        try {
-            const response = await fetch(`${API_BASE}/api/employees`);
-            const data = await response.json();
-            if (data.success && Array.isArray(data.data)) {
-                const sorted = data.data.sort((a, b) => a.name.localeCompare(b.name));
-                const html = sorted.map(emp => `
-                    <div class="employee-item ${selectedEmpId === emp.id ? 'active' : ''}" 
-                         onclick="selectEmployee(${emp.id}, '${emp.name.replace(/'/g, "\\'")}', '${emp.email || 'E-mail yok'}')">
-                        <div class="employee-name">${emp.name}</div>
-                        <div class="employee-email">${emp.email || 'E-mail yok'}</div>
-                        <div class="employee-hours">📊 ${emp.total_hours} saat</div>
-                    </div>
-                `).join('');
-                document.getElementById('employeesList').innerHTML = html || '<div class="loading">Çalışan yok</div>';
-            }
-        } catch (error) {
-            console.error('Çalışanlar yüklenemedi:', error);
-            document.getElementById('employeesList').innerHTML = '<div class="loading">Bağlantı hatası</div>';
+            document.getElementById('checkedInToday').addEventListener('click', showTodayAttendance);
         }
-    }
 
-    async function selectEmployee(empId, name, email) {
-        selectedEmpId = empId;
-        document.getElementById('detailName').textContent = name;
-        document.getElementById('detailEmail').textContent = email;
-        document.getElementById('detailsContent').style.display = 'block';
-        document.getElementById('noEmployeeContent').style.display = 'none';
-
-        // Aktif seçimi vurgula
-        document.querySelectorAll('.employee-item').forEach(item => item.classList.remove('active'));
-        event.target.closest('.employee-item').classList.add('active');
-
-        await loadAttendanceHistory();
-        await loadMonthlyStats();
-    }
-
-    async function loadAttendanceHistory() {
-        if (!selectedEmpId) return;
-        try {
-            const response = await fetch(`${API_BASE}/api/attendance/${selectedEmpId}`);
-            const data = await response.json();
-            if (data.success && data.data.length > 0) {
-                const html = data.data.map(att => `
-                    <div class="attendance-item">
-                        <div class="attendance-date">📅 ${att.date}</div>
-                        <div class="attendance-time">
-                            <span class="time-in">Giriş: ${att.start_time || '—'}</span>
-                            <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+        async function loadEmployees() {
+            try {
+                const response = await fetch(`${API_BASE}/api/employees`);
+                const data = await response.json();
+                if (data.success && Array.isArray(data.data)) {
+                    const sorted = data.data.sort((a, b) => a.name.localeCompare(b.name));
+                    const html = sorted.map(emp => `
+                        <div class="employee-item" onclick="selectEmployee(${emp.id}, '${emp.name.replace(/'/g, "\\'")}', '${emp.email || 'E-mail yok'}')">
+                            <div class="employee-name">${emp.name}</div>
+                            <div class="employee-email">${emp.email || 'E-mail yok'}</div>
+                            <div class="employee-hours">📊 ${emp.total_hours} saat</div>
                         </div>
-                        <span class="attendance-location">${att.location}</span>
-                        ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} saat</div>` : ''}
-                    </div>
-                `).join('');
-                document.getElementById('attendanceList').innerHTML = html;
-            } else {
-                document.getElementById('attendanceList').innerHTML = '<div class="loading">Kayıt yok</div>';
+                    `).join('');
+                    document.getElementById('employeesList').innerHTML = html || '<div class="loading">Çalışan yok</div>';
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                document.getElementById('employeesList').innerHTML = '<div class="loading">Bağlantı hatası</div>';
             }
-        } catch (error) {
-            document.getElementById('attendanceList').innerHTML = '<div class="loading">Hata</div>';
         }
-    }
 
-    async function loadMonthlyStats() {
-        if (!selectedEmpId) return;
-        try {
-            const response = await fetch(`${API_BASE}/api/monthly-hours/${selectedEmpId}?year=${currentYear}&month=${currentMonth + 1}`);
-            const data = await response.json();
-            if (data.success) {
-                document.getElementById('monthTotal').textContent = data.total_hours;
-                document.getElementById('workDays').textContent = data.work_days;
+        async function selectEmployee(empId, name, email) {
+            selectedEmpId = empId;
+            document.getElementById('detailName').textContent = name;
+            document.getElementById('detailEmail').textContent = email;
+            document.getElementById('detailsContent').style.display = 'block';
+            document.getElementById('noEmployeeContent').style.display = 'none';
 
-                const html = data.data.length > 0
-                    ? data.data.map(att => `
+            document.querySelectorAll('.employee-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.employee-item').classList.add('active');
+
+            await loadAttendanceHistory();
+            await loadMonthlyStats();
+        }
+
+        async function loadAttendanceHistory() {
+            if (!selectedEmpId) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/attendance/${selectedEmpId}`);
+                const data = await response.json();
+                if (data.success && data.data.length > 0) {
+                    const html = data.data.map(att => `
                         <div class="attendance-item">
                             <div class="attendance-date">📅 ${att.date}</div>
                             <div class="attendance-time">
@@ -301,139 +264,200 @@
                             <span class="attendance-location">${att.location}</span>
                             ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} saat</div>` : ''}
                         </div>
-                    `).join('')
-                    : '<div class="loading">Bu ay kayıt yok</div>';
-
-                document.getElementById('monthlyList').innerHTML = html;
+                    `).join('');
+                    document.getElementById('attendanceList').innerHTML = html;
+                } else {
+                    document.getElementById('attendanceList').innerHTML = '<div class="loading">Kayıt yok</div>';
+                }
+            } catch (error) {
+                document.getElementById('attendanceList').innerHTML = '<div class="loading">Hata</div>';
             }
-        } catch (error) {
-            console.error('Aylık veri hatası:', error);
-        }
-    }
-
-    // AY DEĞİŞTİRME
-    function prevMonth() {
-        if (currentMonth === 0) { currentMonth = 11; currentYear--; }
-        else { currentMonth--; }
-        updateMonthDisplay();
-        if (selectedEmpId) loadMonthlyStats();
-    }
-
-    function nextMonth() {
-        if (currentMonth === 11) { currentMonth = 0; currentYear++; }
-        else { currentMonth++; }
-        updateMonthDisplay();
-        if (selectedEmpId) loadMonthlyStats();
-    }
-
-    function updateMonthDisplay() {
-        const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
-        document.getElementById('monthDisplay').textContent = `${months[currentMonth]} ${currentYear}`;
-    }
-
-    // YENİ ÇALIŞAN EKLEME - ŞİMDİ ÇALIŞIYOR!
-    async function addEmployee() {
-    const nameInput = document.getElementById('newEmpName');
-    const name = nameInput.value.trim();
-
-    if (!name) {
-        alert('Ad Soyad alanı zorunludur!');
-        return;
-    }
-
-    try {
-        const response = await fetch(`${API_BASE}/api/employees`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })  // Sadece name gönderiyoruz, email yok!
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            alert('✅ Çalışan başarıyla oluşturuldu!');
-            closeAddModal();
-            nameInput.value = '';  // Inputu temizle
-            await loadEmployees(); // Listeyi yenile
-            await loadStats();     // Dashboard istatistikleri güncelle
-        } else {
-            alert('❌ Hata: ' + data.error);
-        }
-    } catch (error) {
-        console.error('Ekleme hatası:', error);
-        alert('Sunucu bağlantı hatası! Lütfen tekrar deneyin.');
-    }
-}
-
-    // ÇALIŞAN SİLME - ŞİMDİ TAM ÇALIŞIYOR
-    async function deleteEmployee(empId) {
-        if (!confirm('Bu çalışanı kalıcı olarak silmek istediğinize emin misiniz?\nTüm yoklama kayıtları da silinecek.')) {
-            return;
         }
 
-        try {
-            const response = await fetch(`${API_BASE}/api/employees/${empId}`, {
-                method: 'DELETE'
-            });
+        async function loadMonthlyStats() {
+            if (!selectedEmpId) return;
+            try {
+                const response = await fetch(`${API_BASE}/api/monthly-hours/${selectedEmpId}?year=${currentYear}&month=${currentMonth + 1}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('monthTotal').textContent = data.total_hours;
+                    document.getElementById('workDays').textContent = data.work_days;
 
-            const data = await response.json();
+                    const html = data.data.length > 0
+                        ? data.data.map(att => `
+                            <div class="attendance-item">
+                                <div class="attendance-date">📅 ${att.date}</div>
+                                <div class="attendance-time">
+                                    <span class="time-in">Giriş: ${att.start_time || '—'}</span>
+                                    <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+                                </div>
+                                <span class="attendance-location">${att.location}</span>
+                                ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} saat</div>` : ''}
+                            </div>
+                        `).join('')
+                        : '<div class="loading">Bu ay kayıt yok</div>';
 
-            if (data.success) {
-                alert('Çalışan silindi.');
-                selectedEmpId = null;
-                document.getElementById('detailsContent').style.display = 'none';
-                document.getElementById('noEmployeeContent').style.display = 'block';
-                await loadEmployees();
-                await loadStats();
-            } else {
-                alert('Silme hatası: ' + (data.error || 'Bilinmeyen hata'));
+                    document.getElementById('monthlyList').innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Hata:', error);
             }
-        } catch (error) {
-            console.error('Silme hatası:', error);
-            alert('Sunucu bağlantı hatası!');
         }
-    }
 
-    async function loadStats() {
-        try {
-            const response = await fetch(`${API_BASE}/api/dashboard-stats`);
-            const data = await response.json();
-            if (data.success) {
-                document.getElementById('totalEmployees').textContent = data.total_employees;
-                document.getElementById('checkedInToday').textContent = data.checked_in_today;
-                document.getElementById('monthlyHours').textContent = data.total_monthly_hours;
+        function prevMonth() {
+            if (currentMonth === 0) { currentMonth = 11; currentYear--; }
+            else { currentMonth--; }
+            updateMonthDisplay();
+            if (selectedEmpId) loadMonthlyStats();
+        }
+
+        function nextMonth() {
+            if (currentMonth === 11) { currentMonth = 0; currentYear++; }
+            else { currentMonth++; }
+            updateMonthDisplay();
+            if (selectedEmpId) loadMonthlyStats();
+        }
+
+        function updateMonthDisplay() {
+            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            document.getElementById('monthDisplay').textContent = `${months[currentMonth]} ${currentYear}`;
+        }
+
+        async function downloadAllEmployeesReport() {
+            try {
+                const url = `${API_BASE}/api/export-all-employees-report`;
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = '';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Rapor indirme başarısız oldu!');
             }
-        } catch (error) {
-            console.error('Dashboard hatası:', error);
         }
-    }
 
-    // Modal kontrolleri
-    function openAddModal() {
-        document.getElementById('addModal').classList.add('active');
-    }
+        async function addEmployee() {
+            const nameInput = document.getElementById('newEmpName');
+            const name = nameInput.value.trim();
 
-    function closeAddModal() {
-        document.getElementById('addModal').classList.remove('active');
-    }
+            if (!name) {
+                alert('Ad Soyad alanı zorunludur!');
+                return;
+            }
 
-    async function showTodayAttendance() {
-        // ... (önceki kodun aynı)
-    }
+            try {
+                const response = await fetch(`${API_BASE}/api/employees`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                });
 
-    function closeTodayModal() {
-        document.getElementById('todayModal').classList.remove('active');
-    }
+                const data = await response.json();
 
-   function logout() {
+                if (data.success) {
+                    alert('✅ Çalışan başarıyla oluşturuldu!');
+                    closeAddModal();
+                    nameInput.value = '';
+                    await loadEmployees();
+                    await loadStats();
+                } else {
+                    alert('❌ Hata: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Sunucu bağlantı hatası!');
+            }
+        }
+
+        async function deleteEmployee(empId) {
+            if (!confirm('Bu çalışanı kalıcı olarak silmek istediğinize emin misiniz?\nTüm yoklama kayıtları da silinecek.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/api/employees/${empId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Çalışan silindi.');
+                    selectedEmpId = null;
+                    document.getElementById('detailsContent').style.display = 'none';
+                    document.getElementById('noEmployeeContent').style.display = 'block';
+                    await loadEmployees();
+                    await loadStats();
+                } else {
+                    alert('Silme hatası: ' + (data.error || 'Bilinmeyen hata'));
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Sunucu bağlantı hatası!');
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/dashboard-stats`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('totalEmployees').textContent = data.total_employees;
+                    document.getElementById('checkedInToday').textContent = data.checked_in_today;
+                    document.getElementById('monthlyHours').textContent = data.total_monthly_hours;
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        async function showTodayAttendance() {
+            try {
+                const response = await fetch(`${API_BASE}/api/today-attendance`);
+                const data = await response.json();
+                if (data.success) {
+                    const html = data.data.length > 0
+                        ? data.data.map(att => `
+                            <div class="attendance-item">
+                                <div class="attendance-date">👤 ${att.employee_name}</div>
+                                <div class="attendance-time">
+                                    <span class="time-in">Giriş: ${att.start_time || '—'}</span>
+                                    <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+                                </div>
+                                <span class="attendance-location">${att.location}</span>
+                                <div class="attendance-hours">⏱️ ${att.hours} saat</div>
+                            </div>
+                        `).join('')
+                        : '<div class="loading">Bugün kimse başlamadı</div>';
+                    document.getElementById('todayList').innerHTML = html;
+                }
+            } catch (error) {
+                document.getElementById('todayList').innerHTML = '<div class="loading">Hata</div>';
+            }
+            document.getElementById('todayModal').classList.add('active');
+        }
+
+        function closeTodayModal() {
+            document.getElementById('todayModal').classList.remove('active');
+        }
+
+        function logout() {
             if (confirm('Çıkış yapmak istiyor musunuz?')) {
-                // login.html'ye logout parametresiyle yönlendir
                 window.location.href = 'login.html?logout=true';
             }
         }
 
-    window.addEventListener('load', init);
-</script>
+        window.addEventListener('load', init);
+    </script>
 </body>
-
 </html>
