@@ -1,3 +1,6 @@
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from io import BytesIO
 import os
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, send_file
@@ -6,9 +9,7 @@ from datetime import datetime, timedelta
 import calendar
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from io import BytesIO
+
 
 load_dotenv()
 
@@ -171,6 +172,113 @@ def export_monthly_report(emp_id):
         
         # Dosya adı (Türkçe ay ismi ile)
         filename = f"{emp_name}_{months[month-1]}_{year}_Rapor.xlsx"
+        
+        return send_file(
+            output,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        print(f"❌ Excel export error: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+        @app.route('/api/export-all-employees-report', methods=['GET'])
+def export_all_employees_report():
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        
+        # Tüm çalışanları al
+        cur.execute("SELECT id, name FROM employees ORDER BY name")
+        employees = cur.fetchall()
+        
+        # Excel çalışma kitabı oluştur
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Çalışan Raporu"
+        
+        # Başlık stileri
+        header_fill = PatternFill(start_color="7C3AED", end_color="7C3AED", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        center_align = Alignment(horizontal="center", vertical="center")
+        border = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        
+        # Başlık
+        ws['A1'] = "TÜM ÇALIŞANLAR - TOPLAM ÇALIŞMA SAATİ"
+        ws['A1'].font = Font(bold=True, size=14, color="7C3AED")
+        ws.merge_cells('A1:B1')
+        
+        # Tablo başlıkları
+        ws['A3'] = "Ad Soyad"
+        ws['B3'] = "Toplam Saat"
+        
+        for col in ['A', 'B']:
+            cell = ws[f'{col}3']
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = center_align
+            cell.border = border
+        
+        # Kolon genişlikleri
+        ws.column_dimensions['A'].width = 30
+        ws.column_dimensions['B'].width = 15
+        
+        # Veriler
+        row_num = 4
+        total_all_hours = 0
+        
+        for emp in employees:
+            emp_id = emp['id']
+            emp_name = emp['name']
+            
+            # Toplam çalışma saatini hesapla
+            cur.execute("""
+                SELECT start_time, end_time FROM attendance
+                WHERE employee_id = %s AND end_time IS NOT NULL
+            """, (emp_id,))
+            
+            total_hours = sum(calculate_hours(r['start_time'], r['end_time']) for r in cur.fetchall())
+            total_all_hours += total_hours
+            
+            # Satıra ekle
+            ws.cell(row=row_num, column=1).value = emp_name
+            ws.cell(row=row_num, column=2).value = round(total_hours, 2)
+            
+            # Stil uygula
+            for col in range(1, 3):
+                cell = ws.cell(row=row_num, column=col)
+                cell.border = border
+                if col == 2:
+                    cell.alignment = Alignment(horizontal="center")
+            
+            row_num += 1
+        
+        # Toplam satırı
+        ws.cell(row=row_num, column=1).value = "GENEL TOPLAM"
+        ws.cell(row=row_num, column=1).font = Font(bold=True)
+        ws.cell(row=row_num, column=2).value = round(total_all_hours, 2)
+        ws.cell(row=row_num, column=2).font = Font(bold=True, color="FFFFFF")
+        ws.cell(row=row_num, column=2).fill = PatternFill(start_color="4ADE80", end_color="4ADE80", fill_type="solid")
+        
+        for col in range(1, 3):
+            ws.cell(row=row_num, column=col).border = border
+        
+        cur.close()
+        conn.close()
+        
+        # Excel dosyasını BytesIO'ya yaz
+        output = BytesIO()
+        wb.save(output)
+        output.seek(0)
+        
+        # Dosya adı
+        filename = f"Tum_Calisanlar_Raporu.xlsx"
         
         return send_file(
             output,
@@ -455,3 +563,4 @@ if __name__ == '__main__':
     debug = os.getenv('DEBUG', 'True') == 'True'
     print("🚀 PROSPANDO Admin Backend başlatılıyor...")
     app.run(host='0.0.0.0', port=port, debug=debug)
+
