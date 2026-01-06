@@ -86,7 +86,7 @@
     <div class="navbar">
         <div class="navbar-content">
             <h1>🎯 PROSPANDO Admin</h1>
-            <button onclick="logout()">Çıkış Yap</button>
+            <button onclick="logout()">Abmelden</button>
         </div>
     </div>
 
@@ -94,26 +94,26 @@
         <div class="stats-section">
             <div class="stats-grid">
                 <div class="stat-card blue">
-                    <div class="stat-label">TOPLAM ÇALIŞAN</div>
+                    <div class="stat-label">GESAMTANZAHL MITARBEITER</div>
                     <div class="stat-value" id="totalEmployees">0</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-label">BUGÜNKİ YOKLAMA</div>
+                    <div class="stat-label">HEUTIGER ANWESENHEITSBERICHT</div>
                     <div class="stat-value" id="checkedInToday" style="cursor: pointer;">0</div>
                 </div>
                 <div class="stat-card purple">
-                    <div class="stat-label">AYLIK TOPLAM SAAT</div>
+                    <div class="stat-label">GESAMTSTUNDEN MONATLICH</div>
                     <div class="stat-value" id="monthlyHours">0</div>
                 </div>
             </div>
-            <button class="report-btn" onclick="downloadAllEmployeesReport()">📥 Rapor İndir</button>
+            <button class="report-btn" onclick="downloadAllEmployeesReport()">📥 Bericht Herunterladen</button>
         </div>
 
         <div class="main-grid">
             <div class="panel">
                 <div class="panel-header">
-                    Çalışanlar
-                    <input type="text" id="searchEmp" class="search-input" placeholder="Ara...">
+                    Mitarbeiter
+                    <input type="text" id="searchEmp" class="search-input" placeholder="Suchen...">
                     <button class="add-btn" onclick="openAddModal()">+</button>
                 </div>
                 <div class="panel-content" id="employeesList"></div>
@@ -125,11 +125,11 @@
                         <div class="employee-avatar">👤</div>
                         <h2 id="detailName"></h2>
                         <p id="detailEmail"></p>
-                        <button class="btn-delete" onclick="deleteEmployee(selectedEmpId)">Sil</button>
+                        <button class="btn-delete" onclick="deleteEmployee(selectedEmpId)">Löschen</button>
                     </div>
 
                     <div class="panel">
-                        <div class="panel-header">Aylık İstatistik</div>
+                        <div class="panel-header">Monatliche Statistik</div>
                         <div class="panel-content">
                             <div class="month-selector">
                                 <button onclick="prevMonth()">←</button>
@@ -138,11 +138,11 @@
                             </div>
                             <div class="monthly-stats">
                                 <div class="stat-box">
-                                    <div class="stat-box-label">Toplam Saat</div>
+                                    <div class="stat-box-label">Gesamtstunden</div>
                                     <div class="stat-box-value" id="monthTotal">0</div>
                                 </div>
                                 <div class="stat-box">
-                                    <div class="stat-box-label">Çalışma Günü</div>
+                                    <div class="stat-box-label">Arbeitstage</div>
                                     <div class="stat-box-value" id="workDays">0</div>
                                 </div>
                             </div>
@@ -151,7 +151,7 @@
                     </div>
 
                     <div class="panel">
-                        <div class="panel-header">Çalışma Geçmişi</div>
+                        <div class="panel-header">Arbeitshistorie</div>
                         <div class="panel-content">
                             <div class="attendance-list" id="attendanceList"></div>
                         </div>
@@ -160,7 +160,7 @@
                 <div id="noEmployeeContent">
                     <div class="panel no-employee">
                         <div style="font-size: 48px; margin-bottom: 15px;">👤</div>
-                        <p>Çalışan seçiniz</p>
+                        <p>Wählen Sie einen Mitarbeiter</p>
                     </div>
                 </div>
             </div>
@@ -169,24 +169,24 @@
 
     <div class="modal" id="addModal">
         <div class="modal-content">
-            <h3>Yeni Çalışan Ekle</h3>
+            <h3>Neuen Mitarbeiter Hinzufügen</h3>
             <div class="form-group">
-                <label>Ad Soyad *</label>
-                <input type="text" id="newEmpName" placeholder="Ad Soyadını giriniz..." autofocus>
+                <label>Vollständiger Name *</label>
+                <input type="text" id="newEmpName" placeholder="Vollständigen Namen eingeben..." autofocus>
             </div>
             <div class="modal-buttons">
-                <button class="btn btn-cancel" onclick="closeAddModal()">İptal</button>
-                <button class="btn btn-add" onclick="addEmployee()">Ekle</button>
+                <button class="btn btn-cancel" onclick="closeAddModal()">Abbrechen</button>
+                <button class="btn btn-add" onclick="addEmployee()">Hinzufügen</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="todayModal">
         <div class="modal-content">
-            <h3>Bugünkü Yoklama</h3>
+            <h3>Heutiger Anwesenheitsbericht</h3>
             <div id="todayList" class="attendance-list"></div>
             <div class="modal-buttons">
-                <button class="btn btn-cancel" onclick="closeTodayModal()">Kapat</button>
+                <button class="btn btn-cancel" onclick="closeTodayModal()">Schließen</button>
             </div>
         </div>
     </div>
@@ -220,17 +220,17 @@
                 if (data.success && Array.isArray(data.data)) {
                     const sorted = data.data.sort((a, b) => a.name.localeCompare(b.name));
                     const html = sorted.map(emp => `
-                        <div class="employee-item" onclick="selectEmployee(${emp.id}, '${emp.name.replace(/'/g, "\\'")}', '${emp.email || 'E-mail yok'}')">
+                        <div class="employee-item" onclick="selectEmployee(${emp.id}, '${emp.name.replace(/'/g, "\\'")}', '${emp.email || 'Keine E-Mail'}')">
                             <div class="employee-name">${emp.name}</div>
-                            <div class="employee-email">${emp.email || 'E-mail yok'}</div>
-                            <div class="employee-hours">📊 ${emp.total_hours} saat</div>
+                            <div class="employee-email">${emp.email || 'Keine E-Mail'}</div>
+                            <div class="employee-hours">📊 ${emp.total_hours} Stunden</div>
                         </div>
                     `).join('');
-                    document.getElementById('employeesList').innerHTML = html || '<div class="loading">Çalışan yok</div>';
+                    document.getElementById('employeesList').innerHTML = html || '<div class="loading">Keine Mitarbeiter</div>';
                 }
             } catch (error) {
                 console.error('Hata:', error);
-                document.getElementById('employeesList').innerHTML = '<div class="loading">Bağlantı hatası</div>';
+                document.getElementById('employeesList').innerHTML = '<div class="loading">Verbindungsfehler</div>';
             }
         }
 
@@ -258,19 +258,19 @@
                         <div class="attendance-item">
                             <div class="attendance-date">📅 ${att.date}</div>
                             <div class="attendance-time">
-                                <span class="time-in">Giriş: ${att.start_time || '—'}</span>
-                                <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+                                <span class="time-in">Eintritt: ${att.start_time || '—'}</span>
+                                <span class="time-out">Austritt: ${att.end_time || '—'}</span>
                             </div>
                             <span class="attendance-location">${att.location}</span>
-                            ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} saat</div>` : ''}
+                            ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} Stunden</div>` : ''}
                         </div>
                     `).join('');
                     document.getElementById('attendanceList').innerHTML = html;
                 } else {
-                    document.getElementById('attendanceList').innerHTML = '<div class="loading">Kayıt yok</div>';
+                    document.getElementById('attendanceList').innerHTML = '<div class="loading">Keine Einträge</div>';
                 }
             } catch (error) {
-                document.getElementById('attendanceList').innerHTML = '<div class="loading">Hata</div>';
+                document.getElementById('attendanceList').innerHTML = '<div class="loading">Fehler</div>';
             }
         }
 
@@ -288,14 +288,14 @@
                             <div class="attendance-item">
                                 <div class="attendance-date">📅 ${att.date}</div>
                                 <div class="attendance-time">
-                                    <span class="time-in">Giriş: ${att.start_time || '—'}</span>
-                                    <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+                                    <span class="time-in">Eintritt: ${att.start_time || '—'}</span>
+                                    <span class="time-out">Austritt: ${att.end_time || '—'}</span>
                                 </div>
                                 <span class="attendance-location">${att.location}</span>
-                                ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} saat</div>` : ''}
+                                ${att.hours ? `<div class="attendance-hours">⏱️ ${att.hours} Stunden</div>` : ''}
                             </div>
                         `).join('')
-                        : '<div class="loading">Bu ay kayıt yok</div>';
+                        : '<div class="loading">Dieser Monat hat keine Einträge</div>';
 
                     document.getElementById('monthlyList').innerHTML = html;
                 }
@@ -319,7 +319,7 @@
         }
 
         function updateMonthDisplay() {
-            const months = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+            const months = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
             document.getElementById('monthDisplay').textContent = `${months[currentMonth]} ${currentYear}`;
         }
 
@@ -334,7 +334,7 @@
                 document.body.removeChild(link);
             } catch (error) {
                 console.error('Hata:', error);
-                alert('Rapor indirme başarısız oldu!');
+                alert('Bericht herunterladen fehlgeschlagen!');
             }
         }
 
@@ -343,7 +343,7 @@
             const name = nameInput.value.trim();
 
             if (!name) {
-                alert('Ad Soyad alanı zorunludur!');
+                alert('Das Feld Vollständiger Name ist erforderlich!');
                 return;
             }
 
@@ -357,22 +357,22 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('✅ Çalışan başarıyla oluşturuldu!');
+                    alert('✅ Mitarbeiter erfolgreich erstellt!');
                     closeAddModal();
                     nameInput.value = '';
                     await loadEmployees();
                     await loadStats();
                 } else {
-                    alert('❌ Hata: ' + data.error);
+                    alert('❌ Fehler: ' + data.error);
                 }
             } catch (error) {
                 console.error('Hata:', error);
-                alert('Sunucu bağlantı hatası!');
+                alert('Serververbindungsfehler!');
             }
         }
 
         async function deleteEmployee(empId) {
-            if (!confirm('Bu çalışanı kalıcı olarak silmek istediğinize emin misiniz?\nTüm yoklama kayıtları da silinecek.')) {
+            if (!confirm('Sind Sie sicher, dass Sie diesen Mitarbeiter dauerhaft löschen möchten?\nAlle Anwesenheitsaufzeichnungen werden auch gelöscht.')) {
                 return;
             }
 
@@ -384,18 +384,18 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    alert('Çalışan silindi.');
+                    alert('Mitarbeiter gelöscht.');
                     selectedEmpId = null;
                     document.getElementById('detailsContent').style.display = 'none';
                     document.getElementById('noEmployeeContent').style.display = 'block';
                     await loadEmployees();
                     await loadStats();
                 } else {
-                    alert('Silme hatası: ' + (data.error || 'Bilinmeyen hata'));
+                    alert('Löschfehler: ' + (data.error || 'Unbekannter Fehler'));
                 }
             } catch (error) {
                 console.error('Hata:', error);
-                alert('Sunucu bağlantı hatası!');
+                alert('Serververbindungsfehler!');
             }
         }
 
@@ -431,18 +431,18 @@
                             <div class="attendance-item">
                                 <div class="attendance-date">👤 ${att.employee_name}</div>
                                 <div class="attendance-time">
-                                    <span class="time-in">Giriş: ${att.start_time || '—'}</span>
-                                    <span class="time-out">Çıkış: ${att.end_time || '—'}</span>
+                                    <span class="time-in">Eintritt: ${att.start_time || '—'}</span>
+                                    <span class="time-out">Austritt: ${att.end_time || '—'}</span>
                                 </div>
                                 <span class="attendance-location">${att.location}</span>
-                                <div class="attendance-hours">⏱️ ${att.hours} saat</div>
+                                <div class="attendance-hours">⏱️ ${att.hours} Stunden</div>
                             </div>
                         `).join('')
-                        : '<div class="loading">Bugün kimse başlamadı</div>';
+                        : '<div class="loading">Heute hat noch niemand angefangen</div>';
                     document.getElementById('todayList').innerHTML = html;
                 }
             } catch (error) {
-                document.getElementById('todayList').innerHTML = '<div class="loading">Hata</div>';
+                document.getElementById('todayList').innerHTML = '<div class="loading">Fehler</div>';
             }
             document.getElementById('todayModal').classList.add('active');
         }
@@ -452,7 +452,7 @@
         }
 
         function logout() {
-            if (confirm('Çıkış yapmak istiyor musunuz?')) {
+            if (confirm('Möchten Sie sich abmelden?')) {
                 window.location.href = 'login.html?logout=true';
             }
         }
