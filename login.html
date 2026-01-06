@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎯 PROSPANDO Giriş</title>
+    <title>🎯 PROSPANDO Anmeldung</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
-            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #16213e 100%); 
-            min-height: 100vh; 
-            display: flex; 
-            align-items: center; 
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
             justify-content: center;
             position: relative;
         }
-        body::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; left: 0; right: 0; bottom: 0; 
-            background: radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 50%), 
-                        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%), 
-                        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 40%); 
-            z-index: -1; 
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(124, 58, 237, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 40%);
+            z-index: -1;
         }
         .login-card {
             background: rgba(30, 41, 59, 0.6);
@@ -109,40 +109,35 @@
 <body>
     <div class="login-card">
         <h1>🎯 PROSPANDO</h1>
-        
-
+       
         <div id="loginForm">
             <div class="form-group">
-                <label>Kullanıcı Adı</label>
+                <label>Benutzername</label>
                 <input type="text" id="username" placeholder="efe" autocomplete="username">
             </div>
             <div class="form-group">
-                <label>Parola</label>
+                <label>Passwort</label>
                 <input type="password" id="password" placeholder="•••••" autocomplete="current-password">
             </div>
-            <button onclick="login()">Giriş Yap</button>
+            <button onclick="login()">Anmelden</button>
             <div class="message" id="errorMsg"></div>
         </div>
-
         <div id="logoutMsg" style="display: none;">
-            <p class="logout-message">Çıkış yapıldı.<br>Görüşürüz!</p>
-            <button onclick="showLogin()">Tekrar Giriş Yap</button>
+            <p class="logout-message">Abgemeldet.<br>Bis bald!</p>
+            <button onclick="showLogin()">Erneut anmelden</button>
         </div>
     </div>
-
     <script>
         function login() {
             const username = document.getElementById('username').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
-
             if (username === 'efe' && password === 'admin') {
                 // Giriş başarılı → admin dashboard'a yönlendir
                 window.location.href = 'index.html';
             } else {
-                document.getElementById('errorMsg').textContent = 'Kullanıcı adı veya parola yanlış!';
+                document.getElementById('errorMsg').textContent = 'Benutzername oder Passwort falsch!';
             }
         }
-
         // URL'de ?logout=true varsa çıkış mesajını göster
         if (window.location.search.includes('logout=true')) {
             document.getElementById('loginForm').style.display = 'none';
@@ -150,13 +145,11 @@
             // Tarayıcı geçmişinden parametreyi temizle
             history.replaceState({}, '', 'login.html');
         }
-
         function showLogin() {
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('logoutMsg').style.display = 'none';
             document.getElementById('errorMsg').textContent = '';
         }
-
         // Enter tuşu ile giriş
         document.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') login();
