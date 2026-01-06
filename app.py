@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from datetime import datetime, timedelta
@@ -5,14 +7,19 @@ import calendar
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = 'prospando-admin-2025'
 CORS(app)
 
 def get_conn():
     try:
+        DATABASE_URL = os.getenv('DATABASE_URL')
+        if not DATABASE_URL:
+            raise ValueError("DATABASE_URL environment variable not found")
         conn = psycopg2.connect(
-            "postgresql://postgres:Berlin225!deneme@db.ubixgmevwfmqstujzyxr.supabase.co:5432/postgres",
+            DATABASE_URL,
             sslmode="require",
             connect_timeout=10
         )
@@ -73,6 +80,7 @@ def get_employees():
     except Exception as e:
         print(f"❌ Employees error: {str(e)}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/employees', methods=['POST'])
 def add_employee():
     try:
@@ -265,7 +273,7 @@ def get_today_attendance():
 def get_dashboard_stats():
     try:
         conn = get_conn()
-        cur = conn.cursor(cursor_factory=RealDictCursor)  # BURASI KRİTİK!
+        cur = conn.cursor(cursor_factory=RealDictCursor)
 
         # Toplam çalışan
         cur.execute("SELECT COUNT(*) AS count FROM employees")
@@ -316,5 +324,7 @@ def health():
     return jsonify({'status': 'healthy', 'database': 'supabase'}), 200
 
 if __name__ == '__main__':
+    port = int(os.getenv('PORT', 5001))
+    debug = os.getenv('DEBUG', 'False') == 'True'
     print("🚀 PROSPANDO Admin Backend başlatılıyor...")
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=debug)
