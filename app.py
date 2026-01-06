@@ -324,7 +324,10 @@ def health():
     return jsonify({'status': 'healthy', 'database': 'supabase'}), 200
 
 if __name__ == '__main__':
+    # Localhost'ta test için (development)
     port = int(os.getenv('PORT', 5001))
-    debug = os.getenv('DEBUG', 'False') == 'True'
+    debug = os.getenv('DEBUG', 'True') == 'True'
     print("🚀 PROSPANDO Admin Backend başlatılıyor...")
     app.run(host='0.0.0.0', port=port, debug=debug)
+
+# Render/Production için (gunicorn kullanırken bu çalışır)
