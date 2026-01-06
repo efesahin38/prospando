@@ -63,7 +63,7 @@ def export_all_employees_report():
         # Excel çalışma kitabı oluştur
         wb = Workbook()
         ws = wb.active
-        ws.title = "Çalışan Raporu"
+        ws.title = "Mitarbeiterbericht"
         
         # Başlık stileri
         header_fill = PatternFill(start_color="7C3AED", end_color="7C3AED", fill_type="solid")
@@ -77,7 +77,7 @@ def export_all_employees_report():
         )
         
         # Başlık
-        ws['A1'] = "TÜM ÇALIŞANLAR - TOPLAM ÇALIŞMA SAATİ"
+        ws['A1'] = "ALLE MITARBEITER - GESAMTE ARBEITSSTUNDEN"
         ws['A1'].font = Font(bold=True, size=14, color="7C3AED")
         ws.merge_cells('A1:B1')
         
@@ -145,7 +145,7 @@ def export_all_employees_report():
         output.seek(0)
         
         # Dosya adı
-        filename = f"Tum_Calisanlar_Raporu.xlsx"
+        filename = f"Alle Mitarbeiterberichte.xlsx"
         
         return send_file(
             output,
@@ -200,12 +200,12 @@ def add_employee():
     try:
         data = request.json
         if not data or 'name' not in data:
-            return jsonify({'success': False, 'error': 'Ad Soyad zorunlu'}), 400
+            return jsonify({'success': False, 'error': 'Vorname Nachname ist Pflicht'}), 400
 
         name = data['name'].strip()
 
         if not name:
-            return jsonify({'success': False, 'error': 'Ad Soyad boş olamaz'}), 400
+            return jsonify({'success': False, 'error': 'Die Felder für Vor- und Nachname dürfen nicht leer gelassen werden.'}), 400
 
         email = data.get('email')
         if email:
@@ -222,7 +222,7 @@ def add_employee():
         if cur.fetchone():
             cur.close()
             conn.close()
-            return jsonify({'success': False, 'error': 'Bu isimde bir çalışan zaten var'}), 400
+            return jsonify({'success': False, 'error': 'Es gibt bereits einen Mitarbeiter mit diesem Namen.'}), 400
 
         cur.execute("SELECT MAX(id) AS max_id FROM employees")
         row = cur.fetchone()
@@ -253,7 +253,7 @@ def add_employee():
 
     except Exception as e:
         print(f"❌ Çalışan ekleme hatası: {str(e)}")
-        return jsonify({'success': False, 'error': 'Sunucu hatası'}), 500
+        return jsonify({'success': False, 'error': 'Serverfehler'}), 500
 
 @app.route('/api/employees/<int:emp_id>', methods=['DELETE'])
 def delete_employee(emp_id):
@@ -330,7 +330,7 @@ def get_monthly_hours(emp_id):
                 'date': row['date'],
                 'start_time': str(row['start_time'])[:5] if row['start_time'] else None,
                 'end_time': str(row['end_time'])[:5] if row['end_time'] else None,
-                'location': row['location'] or 'Bilinmiyor',
+                'location': row['location'] or 'unbekannt',
                 'hours': round(hours, 2) if hours else None
             })
 
@@ -367,7 +367,7 @@ def get_today_attendance():
                 'employee_name': row['employee_name'],
                 'start_time': str(row['start_time'])[:5] if row['start_time'] else None,
                 'end_time': str(row['end_time'])[:5] if row['end_time'] else None,
-                'location': row['location'] or 'Bilinmiyor',
+                'location': row['location'] or 'unbekannt',
                 'hours': round(hours, 2) if hours else 0
             })
         cur.close()
@@ -433,5 +433,6 @@ if __name__ == '__main__':
     debug = os.getenv('DEBUG', 'True') == 'True'
     print("🚀 PROSPANDO Admin Backend başlatılıyor...")
     app.run(host='0.0.0.0', port=port, debug=debug)
+
 
 
